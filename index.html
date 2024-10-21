@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマホ対応 支払い情報フォーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.2em;
+        }
+
+        input[type="text"], input[type="date"], select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        @media only screen and (max-width: 600px) {
+            h1 {
+                font-size: 1.2em;
+            }
+
+            form {
+                padding: 15px;
+            }
+
+            button {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>支払い情報を入力してください</h1>
+
+    <form id="paymentForm">
+        <label for="customerNumber">お客様番号（13桁）:</label>
+        <input type="text" id="customerNumber" name="customerNumber" required maxlength="13" pattern="\d{13}" placeholder="13桁の数字を入力してください">
+
+        <label for="paymentMonth">支払月分（令和〇年〇月）:</label>
+        <select id="paymentMonth" name="paymentMonth" required>
+            <option value="">選択してください</option>
+            <!-- 月の選択肢を動的に生成 -->
+            <script>
+                const monthSelect = document.getElementById('paymentMonth');
+                const today = new Date();
+                const startYear = 2019; // 令和元年の西暦
+                for (let i = 0; i < 6; i++) {
+                    const month = new Date(today.getFullYear(), today.getMonth() - i);
+                    const year = month.getFullYear();
+                    const monthNumber = month.getMonth() + 1; // 0始まりを調整
+                    const reiwaYear = year - startYear + 1; // 令和の年数を計算
+
+                    monthSelect.innerHTML += `<option value="令和${reiwaYear}年${monthNumber}月">令和${reiwaYear}年${monthNumber}月</option>`;
+                }
+            </script>
+        </select>
+
+        <label for="paymentDate">支払日:</label>
+        <input type="date" id="paymentDate" name="paymentDate" required>
+
+        <label for="financialInstitution">支払先金融機関:</label>
+        <select id="financialInstitution" name="financialInstitution" required>
+            <option value="">選択してください</option>
+            <option value="銀行">銀行</option>
+            <option value="郵便局">郵便局</option>
+        </select>
+
+        <button type="submit">送信</button>
+    </form>
+
+    <div id="confirmationDialog" style="display: none;">
+        <p>この情報で送信してもよろしいですか？</p>
+        <p id="confirmationDetails"></p>
+        <button id="confirmYes">はい</button>
+        <button id="confirmNo">いいえ</button>
+    </div>
+
+    <div id="thankYouMessage" style="display: none;">
+        <p>支払済み連絡が完了しました。ありがとうございました。</p>
+    </div>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // ページリロードを防ぐ
+
+            const formData = {
+                customerNumber: document.getElementById('customerNumber').value,
+                paymentMonth: document.getElementById('paymentMonth').value,
+                paymentDate: document.getElementById('paymentDate').value,
+                financialInstitution: document.getElementById('financialInstitution').value
+            };
+
+            // 確認画面の表示
+            document.getElementById('confirmationDetails').innerHTML = `
+                お客様番号: ${formData.customerNumber}<br>
+                支払月分: ${formData.paymentMonth}<br>
+                支払日: ${formData.paymentDate}<br>
+                支払先金融機関: ${formData.financialInstitution}
+            `;
+            document.getElementById('paymentForm').style.display = 'none';
+            document.getElementById('confirmationDialog').style.display = 'block';
+
+            // 「はい」ボタンのイベントリスナー
+            document.getElementById('confirmYes').addEventListener('click', function() {
+                // 確認が取れたら完了メッセージを表示
+                document.getElementById('confirmationDialog').style.display = 'none';
+                document.getElementById('thankYouMessage').style.display = 'block';
+            });
+
+            // 「いいえ」ボタンのイベントリスナー
+            document.getElementById('confirmNo').addEventListener('click', function() {
+                // 元のフォームに戻る
+                document.getElementById('confirmationDialog').style.display = 'none';
+                document.getElementById('paymentForm').style.display = 'block';
+            });
+        });
+    </script>
+
+</body>
+</html>
